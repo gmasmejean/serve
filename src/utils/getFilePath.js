@@ -3,18 +3,19 @@ import { options } from '../index.js';
 
 export const getFilePath = request => {
 	const { root, fallback } = options;
+	const url = new URL(request.url, `http://${request.headers.host}`);
+	
+	if (url.pathname == '/') return `${root}/index.html`;
 
-	if (request.url == '/') return `${root}/index.html`;
-
-	if (fallback && !fs.existsSync(`${root}${request.url}`) && !request.url.endsWith('/')) {
+	if (fallback && !fs.existsSync(`${root}${url.pathname}`) && !url.pathname.endsWith('/')) {
 		return `${root}/${fallback}`;
 	}
 
-	if (!request.url.includes('.')) {
-		const testFilepath = `${root}/${request.url}.html`;
+	if (!url.pathname.includes('.')) {
+		const testFilepath = `${root}/${url.pathname}.html`;
 
 		if (fs.existsSync(testFilepath)) return testFilepath;
 	}
 
-	return root + request.url;
+	return root + url.pathname;
 };
